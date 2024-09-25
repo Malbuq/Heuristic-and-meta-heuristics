@@ -1,5 +1,6 @@
 import random
 from FitnessEvaluators import SphereEvaluator
+from InertiaStrategys import ConstantIntertia, LinearDescentInertia
 
 class Particle:
     def __init__(self, position):
@@ -17,15 +18,17 @@ def generate_initial_particles(position_left_bound, position_right_bound, dimens
     
     return population
 
-def update_particles_position(population, general_best_position):
-    w = 0.7
+def update_particles_position(population, general_best_position, intertiaStrategy):
     c1 = 1.5
     c2 = 1.5
 
     for index in range(len(population)):
         particle = population[index]
 
+
         for axis_index in range(len(particle.position)):
+            w = intertiaStrategy.calculate_intertia(axis_index)
+
             new_axis_velocity = w*particle.velocity[axis_index] + \
                            c1*random.random()*(particle.best_position[axis_index] - particle.position[axis_index]) + \
                            c2*random.random()*(general_best_position[axis_index] - particle.position[axis_index])
@@ -54,14 +57,15 @@ def find_best_general_position(population, evaluator):
 
 def main():
     
-    NUMBER_ITERATIONS = 1000
+    NUMBER_ITERATIONS = 100
 
     initial_population = generate_initial_particles(-100, 100, 100, 1000)
     evaluator = SphereEvaluator()
+    intertiaStrategy = LinearDescentInertia(0.2, 1, NUMBER_ITERATIONS)
 
     for iteration in range(NUMBER_ITERATIONS):
         general_best_particle = find_best_general_position(initial_population, evaluator)
-        update_particles_position(initial_population, general_best_particle.position)
+        update_particles_position(initial_population, general_best_particle.position, intertiaStrategy)
 
         print("================================================================")
         print(f'Iteration: {iteration + 1}# Best score: {evaluator.calculate_individual_fitness(general_best_particle.position)}.')
