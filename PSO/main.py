@@ -3,9 +3,9 @@ from FitnessEvaluators import SphereEvaluator
 from InertiaStrategys import ConstantIntertia, LinearDescentInertia
 
 class Particle:
-    def __init__(self, position):
+    def __init__(self, position, velocity):
         self.position = position
-        self.velocity = [0.2*element for element in position]
+        self.velocity = velocity
         self.best_position = position
         self.best_position_fitness = float('inf')
 
@@ -13,7 +13,7 @@ def generate_initial_particles(position_left_bound, position_right_bound, dimens
     population = []
     for i in range(population_size):
         for j in range(dimension):
-            particle = Particle([random.uniform(position_left_bound, position_right_bound) for i in range(dimension)])
+            particle = Particle([random.uniform(position_left_bound, position_right_bound) for i in range(dimension)], [random.uniform(position_left_bound, position_right_bound) for i in range(dimension)])
         population.append(particle)
     
     return population
