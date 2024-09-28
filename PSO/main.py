@@ -6,6 +6,7 @@ class Particle:
     def __init__(self, position, velocity):
         self.position = position
         self.velocity = velocity
+        self.fitness = 0
         self.best_position = position
         self.best_position_fitness = float('inf')
 
@@ -36,39 +37,45 @@ def update_particles_position(population, general_best_position, intertiaStrateg
             particle.position[axis_index] = particle.position[axis_index] + new_axis_velocity 
             particle.velocity[axis_index] = new_axis_velocity
 
-def find_best_general_position(population, evaluator):
+def find_best_particle_from_iteration(population, evaluator):
     best_particle = None
     best_fitness = float('inf')
     
     for index in range(len(population)):
         particle = population[index]
 
-        curr_particle_fitness = evaluator.calculate_individual_fitness(particle.position)
+        particle.fitness = evaluator.calculate_individual_fitness(particle.position)
 
-        if curr_particle_fitness < best_fitness:
+        if particle.fitness < best_fitness:
             best_particle = particle
-            best_fitness = curr_particle_fitness
+            best_fitness = particle.fitness
         
-        if curr_particle_fitness < particle.best_position_fitness:
+        if particle.fitness < particle.best_position_fitness:
             particle.best_position = particle.position
-            particle.best_position_fitness = curr_particle_fitness
+            particle.best_position_fitness = particle.fitness
     
     return best_particle
 
 def main():
     
-    NUMBER_ITERATIONS = 100
+    NUMBER_ITERATIONS = 1000
 
-    initial_population = generate_initial_particles(-100, 100, 100, 1000)
+    initial_population = generate_initial_particles(-1, 1, 2, 4)
     evaluator = SphereEvaluator()
     intertiaStrategy = LinearDescentInertia(0.2, 1, NUMBER_ITERATIONS)
+    best_particle = initial_population[0]
+    best_particle.fitness = float('inf')
 
     for iteration in range(NUMBER_ITERATIONS):
-        general_best_particle = find_best_general_position(initial_population, evaluator)
-        update_particles_position(initial_population, general_best_particle.position, intertiaStrategy)
+        best_particle_from_iteration = find_best_particle_from_iteration(initial_population, evaluator)
+
+        if best_particle_from_iteration.fitness < best_particle.fitness:
+            best_particle = best_particle_from_iteration
+
+        update_particles_position(initial_population, best_particle.position, intertiaStrategy)
 
         print("================================================================")
-        print(f'Iteration: {iteration + 1}# Best score: {evaluator.calculate_individual_fitness(general_best_particle.position)}.')
+        print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
         
 main()
 
