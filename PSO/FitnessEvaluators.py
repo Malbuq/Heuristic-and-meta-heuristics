@@ -59,7 +59,7 @@ class RosenbrockEvaluator(FitnessEvaluator):
         total_fitness = 0
 
         for individual in population:
-            total_fitness += self.calculate_individual_fitness(individual.position)
+            total_fitness += self.calculate_individual_fitness(individual)
         
         return total_fitness
 

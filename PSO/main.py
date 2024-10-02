@@ -1,5 +1,5 @@
 import random
-from FitnessEvaluators import SphereEvaluator
+from FitnessEvaluators import SphereEvaluator, RastriginEvaluator, RosenbrockEvaluator
 from InertiaStrategys import ConstantIntertia, LinearDescentInertia
 
 class Particle:
@@ -73,7 +73,7 @@ def main():
     RIGHT_BOUND = 100
 
     initial_population = generate_initial_particles(-100, 100, 30, 1000)
-    evaluator = SphereEvaluator()
+    evaluator = RosenbrockEvaluator()
     intertiaStrategy = LinearDescentInertia(0.2, 1, NUMBER_ITERATIONS)
     best_particle = initial_population[0]
     best_particle.fitness = float('inf')
