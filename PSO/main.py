@@ -1,6 +1,7 @@
 import random
 from FitnessEvaluators import SphereEvaluator, RastriginEvaluator, RosenbrockEvaluator
 from InertiaStrategys import ConstantIntertia, LinearDescentInertia
+import copy
 
 class Particle:
     def __init__(self, position, velocity):
@@ -20,7 +21,7 @@ def generate_initial_particles(position_left_bound, position_right_bound, dimens
     
     return population
 
-def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy):
+def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy, iteration):
     c1 = 1.5
     c2 = 1.5
 
@@ -29,7 +30,7 @@ def update_particles_position(population, left_bound, right_bound, general_best_
 
 
         for axis_index in range(len(particle.position)):
-            w = intertiaStrategy.calculate_intertia(axis_index)
+            w = intertiaStrategy.calculate_intertia(iteration)
 
             new_axis_velocity = w*particle.velocity[axis_index] + \
                            c1*random.random()*(particle.best_position[axis_index] - particle.position[axis_index]) + \
@@ -64,16 +65,18 @@ def find_best_particle_from_iteration(population, evaluator):
             particle.best_position = particle.position
             particle.best_position_fitness = particle.fitness
     
-    return best_particle
+    return copy.deepcopy(best_particle)
 
 def main():
     
-    NUMBER_ITERATIONS = 1000
+    NUMBER_ITERATIONS = 500
     LEFT_BOUND = -100
     RIGHT_BOUND = 100
+    DIMENSION = 30
+    POPULATION_SIZE = 1000
 
-    initial_population = generate_initial_particles(-100, 100, 30, 1000)
-    evaluator = RosenbrockEvaluator()
+    initial_population = generate_initial_particles(LEFT_BOUND, RIGHT_BOUND, DIMENSION, POPULATION_SIZE)
+    evaluator = SphereEvaluator()
     intertiaStrategy = LinearDescentInertia(0.2, 1, NUMBER_ITERATIONS)
     best_particle = initial_population[0]
     best_particle.fitness = float('inf')
@@ -82,9 +85,9 @@ def main():
         best_particle_from_iteration = find_best_particle_from_iteration(initial_population, evaluator)
 
         if best_particle_from_iteration.fitness < best_particle.fitness: #Mudança que o senhor pediu sobre a melhor particula
-            best_particle = best_particle_from_iteration
+            best_particle = (best_particle_from_iteration)
 
-        update_particles_position(initial_population, LEFT_BOUND, RIGHT_BOUND, best_particle.position, intertiaStrategy)
+        update_particles_position(initial_population, LEFT_BOUND, RIGHT_BOUND, best_particle.position, intertiaStrategy, iteration)
 
         print("================================================================")
         print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
