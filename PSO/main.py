@@ -10,6 +10,8 @@ class Particle:
         self.fitness = 0
         self.best_position = position
         self.best_position_fitness = float('inf')
+        self.left_friend = None
+        self.right_friend = None
 
 def generate_initial_particles(position_left_bound, position_right_bound, dimension, population_size):
     population = []
@@ -21,20 +23,51 @@ def generate_initial_particles(position_left_bound, position_right_bound, dimens
     
     return population
 
-def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy, iteration):
+def link_friends(population):
+    population_size = len(population)
+
+    for i in range(population_size):
+        curr_particle = population[i]
+        
+        if i == 0:
+            curr_particle.right_friend = population[i+1]
+            curr_particle.left_friend = population[population_size - 1]
+        elif i == population_size - 1:
+            curr_particle.left_friend = population[i - 1]
+            curr_particle.right_friend = population[0]
+        else:
+            curr_particle.left_friend = population[i-1]
+            curr_particle.right_friend = population[i+1]
+
+def select_friends_best_position(particle):
+    best_particle = None
+    for p in [particle.left_friend, particle, particle.right_friend]:
+        if best_particle is None or p.best_position_fitness < best_particle.best_position_fitness:
+            best_particle = p
+    
+    return best_particle.best_position
+
+def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy, iteration, use_friends_coop):
     c1 = 1.5
     c2 = 1.5
+    social_bias = 0
 
     for index in range(len(population)):
         particle = population[index]
-
+        friends_group_best_position = select_friends_best_position(particle)
 
         for axis_index in range(len(particle.position)):
             w = intertiaStrategy.calculate_intertia(iteration)
 
+            if use_friends_coop:
+                social_bias = c2*random.random()*(friends_group_best_position[axis_index] - particle.position[axis_index])
+            else:
+                social_bias = c2*random.random()*(general_best_position[axis_index] - particle.position[axis_index])
+
+
             new_axis_velocity = w*particle.velocity[axis_index] + \
                            c1*random.random()*(particle.best_position[axis_index] - particle.position[axis_index]) + \
-                           c2*random.random()*(general_best_position[axis_index] - particle.position[axis_index])
+                           social_bias
 
             curr_new_axis_position = particle.position[axis_index] + new_axis_velocity 
             curr_new_axis_position = ensure_axis_position_is_inbounds(left_bound, right_bound, curr_new_axis_position) #Mudança que o senhor pediu sobre manter as posições nos limites
@@ -73,11 +106,14 @@ def main():
     LEFT_BOUND = -100
     RIGHT_BOUND = 100
     DIMENSION = 30
-    POPULATION_SIZE = 1000
+    POPULATION_SIZE = 100
+    USE_FRIENDS_GROUP_COOP = True
 
     initial_population = generate_initial_particles(LEFT_BOUND, RIGHT_BOUND, DIMENSION, POPULATION_SIZE)
+    link_friends(initial_population)
+
     evaluator = SphereEvaluator()
-    intertiaStrategy = LinearDescentInertia(0.2, 1, NUMBER_ITERATIONS)
+    intertiaStrategy = LinearDescentInertia(0.4, 0.9, NUMBER_ITERATIONS)
     best_particle = initial_population[0]
     best_particle.fitness = float('inf')
 
@@ -87,11 +123,12 @@ def main():
         if best_particle_from_iteration.fitness < best_particle.fitness: #Mudança que o senhor pediu sobre a melhor particula
             best_particle = (best_particle_from_iteration)
 
-        update_particles_position(initial_population, LEFT_BOUND, RIGHT_BOUND, best_particle.position, intertiaStrategy, iteration)
+        update_particles_position(initial_population, LEFT_BOUND, RIGHT_BOUND, best_particle.position, intertiaStrategy, iteration, USE_FRIENDS_GROUP_COOP)
 
         print("================================================================")
         print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
         
+    print(best_particle_from_iteration.position)
 main()
 
 
