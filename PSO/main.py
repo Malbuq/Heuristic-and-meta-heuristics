@@ -17,7 +17,6 @@ def generate_initial_particles(position_left_bound, position_right_bound, dimens
     population = []
     for i in range(population_size):
         for j in range(dimension):
-            #Mudança que o senhor pediu sobre velocidade
             particle = Particle([random.uniform(position_left_bound, position_right_bound) for i in range(dimension)], [random.uniform(position_left_bound, position_right_bound) for i in range(dimension)])
         population.append(particle)
     
@@ -47,22 +46,18 @@ def select_friends_best_position(particle):
     
     return best_particle.best_position
 
-def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy, iteration, use_friends_coop):
+def update_particles_position(population, left_bound, right_bound, general_best_position, intertiaStrategy, iteration):
     c1 = 1.5
     c2 = 1.5
     social_bias = 0
 
     for index in range(len(population)):
         particle = population[index]
-        friends_group_best_position = copy.deepcopy(select_friends_best_position(particle))
 
         for axis_index in range(len(particle.position)):
             w = intertiaStrategy.calculate_intertia(iteration)
 
-            if use_friends_coop:
-                social_bias = c2*random.random()*(friends_group_best_position[axis_index] - particle.position[axis_index])
-            else:
-                social_bias = c2*random.random()*(general_best_position[axis_index] - particle.position[axis_index])
+            social_bias = c2*random.random()*(general_best_position[axis_index] - particle.position[axis_index])
 
 
             new_axis_velocity = w*particle.velocity[axis_index] + \
@@ -100,6 +95,25 @@ def find_best_particle_from_iteration(population, evaluator):
     
     return copy.deepcopy(best_particle)
 
+def PSO_algorithm(number_iterations, left_bound, right_bound, dimension, population_size, evaluator, inertiaStrategy):
+
+    initial_population = generate_initial_particles(left_bound, right_bound, dimension, population_size)
+
+    best_particle = initial_population[0]
+    best_particle.fitness = float('inf')
+
+    for iteration in range(number_iterations):
+        best_particle_from_iteration = find_best_particle_from_iteration(initial_population, evaluator)
+
+        if best_particle_from_iteration.fitness < best_particle.fitness:
+            best_particle = (best_particle_from_iteration)
+
+        update_particles_position(initial_population, left_bound, right_bound, best_particle.position, inertiaStrategy, iteration)
+
+        print("================================================================")
+        print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
+
+
 def main():
     
     NUMBER_ITERATIONS = 500
@@ -107,28 +121,12 @@ def main():
     RIGHT_BOUND = 100
     DIMENSION = 30
     POPULATION_SIZE = 100
-    USE_FRIENDS_GROUP_COOP = True
-
-    initial_population = generate_initial_particles(LEFT_BOUND, RIGHT_BOUND, DIMENSION, POPULATION_SIZE)
-    link_friends(initial_population)
 
     evaluator = SphereEvaluator()
-    intertiaStrategy = LinearDescentInertia(0.4, 0.9, NUMBER_ITERATIONS)
-    best_particle = initial_population[0]
-    best_particle.fitness = float('inf')
+    inertiaStrategy = LinearDescentInertia(0.4, 0.9, NUMBER_ITERATIONS)
 
-    for iteration in range(NUMBER_ITERATIONS):
-        best_particle_from_iteration = find_best_particle_from_iteration(initial_population, evaluator)
-
-        if best_particle_from_iteration.fitness < best_particle.fitness: #Mudança que o senhor pediu sobre a melhor particula
-            best_particle = (best_particle_from_iteration)
-
-        update_particles_position(initial_population, LEFT_BOUND, RIGHT_BOUND, best_particle.position, intertiaStrategy, iteration, USE_FRIENDS_GROUP_COOP)
-
-        print("================================================================")
-        print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
+    PSO_algorithm(NUMBER_ITERATIONS, LEFT_BOUND, RIGHT_BOUND, DIMENSION, POPULATION_SIZE, evaluator, inertiaStrategy)
         
-    print(best_particle_from_iteration.position)
 main()
 
 
