@@ -54,7 +54,7 @@ def update_particles_position(population, left_bound, right_bound, general_best_
 
     for index in range(len(population)):
         particle = population[index]
-        friends_group_best_position = select_friends_best_position(particle)
+        friends_group_best_position = copy.deepcopy(select_friends_best_position(particle))
 
         for axis_index in range(len(particle.position)):
             w = intertiaStrategy.calculate_intertia(iteration)

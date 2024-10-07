@@ -64,8 +64,8 @@ def genetic_algorithm(variable_bound, population_size, generations, cromossom_wi
     return best_individual, best_fitness
 
 def main():
-    POPULATION_SIZE = 4
-    GENERATIONS = 10
+    POPULATION_SIZE = 1000
+    GENERATIONS = 1000
     CROMOSSOM_WIDTH = 30
     CROSSOVER_PROBABILITY = 0.8
     MUTATION_PROBABILITY = 0.01
@@ -84,6 +84,6 @@ def main():
             for crossover_type in crossovers:
                 print('===============================================================================================================')
                 print(f'Best results using the {type(evaluator).__name__}, {type(selector).__name__}, {type(crossover_type).__name__}')
-                print(genetic_algorithm(variable_bound, POPULATION_SIZE, GENERATIONS, CROMOSSOM_WIDTH, CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, evaluator, selector, crossover_type))
+                print(genetic_algorithm(variable_bound, POPULATION_SIZE, GENERATIONS, CROMOSSOM_WIDTH, CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, evaluator, selector, crossover_type)[1])
 
 main()
