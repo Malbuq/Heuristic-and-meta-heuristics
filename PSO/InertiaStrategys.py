@@ -6,8 +6,11 @@ class IntertiaStrategy(ABC):
         pass
 
 class ConstantIntertia(IntertiaStrategy):
-    def calculate_intertia(self, current_index_iteration):
-        return 0.8
+    def __init__(self, constantInertia):
+        self.constantIntertiaValue = constantInertia
+
+    def calculate_intertia(self, total_iterations):
+        return self.constantIntertiaValue
     
 class LinearDescentInertia(IntertiaStrategy):
     def __init__(self, wMin, wMax, total_iterations):

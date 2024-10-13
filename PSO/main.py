@@ -102,6 +102,9 @@ def PSO_algorithm(number_iterations, left_bound, right_bound, dimension, populat
     best_particle = initial_population[0]
     best_particle.fitness = float('inf')
 
+    iterations = []
+    result = []
+
     for iteration in range(number_iterations):
         best_particle_from_iteration = find_best_particle_from_iteration(initial_population, evaluator)
 
@@ -110,8 +113,11 @@ def PSO_algorithm(number_iterations, left_bound, right_bound, dimension, populat
 
         update_particles_position(initial_population, left_bound, right_bound, best_particle.position, inertiaStrategy, iteration)
 
-        print("================================================================")
-        print(f'Iteration: {iteration + 1}# Best score: {best_particle_from_iteration.fitness}.')
+        iterations.append(iteration)
+        result.append(best_particle_from_iteration.fitness)
+
+    return (iterations, result)
+        
 
 
 def main():

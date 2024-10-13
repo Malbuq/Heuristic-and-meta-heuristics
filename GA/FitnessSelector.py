@@ -9,13 +9,14 @@ class FitnessSelector(ABC):
 
 class FitnessProportionalSelector(FitnessSelector):
     def select_population(self, population, probabilities):
-        probabilities = [prob for prob in probabilities]
+        total_prob = sum(probabilities)
 
-        new_population_size = len(population)
+        normalized_probabilities = [p/total_prob for p in probabilities]
 
-        new_population = random.choices(population, weights=probabilities, k=new_population_size)
+        new_population = random.choices(population, weights=normalized_probabilities, k=len(population)) 
 
-        return new_population 
+        return new_population
+
 
 class FitnessTournamentSelector(FitnessSelector):
     def select_population(self, population, probabilties):

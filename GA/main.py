@@ -6,7 +6,7 @@ from PopulationCrossover import OnePointCrossover, TwoPointsCrossover
 def generate_initial_population(population_size, variable_bound, cromossom_width):
     population = []
     for i in range(population_size):
-        population.append([random.uniform(-variable_bound, variable_bound) for i in range(cromossom_width)])
+        population.append([random.randint(-variable_bound, variable_bound) for i in range(cromossom_width)])
     
     return population
 
@@ -22,7 +22,7 @@ def calculate_mating_probability(FitnessEvaluator, population):
     for individual in population:
         current_probability = FitnessEvaluator.calculate_individual_fitness(individual) / total_fitness_score
 
-        probabilities.append(1 - current_probability)
+        probabilities.append((1-current_probability))
 
     return probabilities
 
@@ -51,22 +51,26 @@ def select_best_individual_and_fitness(population, fitness_evaluator):
     
     return best_individual, best_fitness
 
-def genetic_algorithm(variable_bound, population_size, generations, cromossom_width, crossover_probability, mutation_probability, evaluator, selector, crossover_type):
+def GA_algorithm(variable_bound, population_size, generations, cromossom_width, crossover_probability, mutation_probability, evaluator, selector, crossover_type):
     population = generate_initial_population(population_size, variable_bound, cromossom_width)
-
+    iterations = []
+    best_fitnesses = []
     for i in range(generations - 1):
         better_individuals = select_better_individuals(evaluator, population, selector)
         new_population = crossover_type.crossover(better_individuals, crossover_probability)
         new_population = mutate_population(new_population, mutation_probability, variable_bound)
+        _, best_fitness = select_best_individual_and_fitness(new_population, evaluator)
+        population = new_population
+        
+        iterations.append(i)
+        best_fitnesses.append(best_fitness)
     
-    best_individual, best_fitness = select_best_individual_and_fitness(new_population, evaluator)
-
-    return best_individual, best_fitness
+    return (iterations, best_fitnesses)
 
 def main():
-    POPULATION_SIZE = 1000
+    POPULATION_SIZE = 3
     GENERATIONS = 1000
-    CROMOSSOM_WIDTH = 30
+    CROMOSSOM_WIDTH = 3
     CROSSOVER_PROBABILITY = 0.8
     MUTATION_PROBABILITY = 0.01
 
@@ -84,6 +88,4 @@ def main():
             for crossover_type in crossovers:
                 print('===============================================================================================================')
                 print(f'Best results using the {type(evaluator).__name__}, {type(selector).__name__}, {type(crossover_type).__name__}')
-                print(genetic_algorithm(variable_bound, POPULATION_SIZE, GENERATIONS, CROMOSSOM_WIDTH, CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, evaluator, selector, crossover_type)[1])
-
-main()
+                print(GA_algorithm(variable_bound, POPULATION_SIZE, GENERATIONS, CROMOSSOM_WIDTH, CROSSOVER_PROBABILITY, MUTATION_PROBABILITY, evaluator, selector, crossover_type)[1])
