@@ -22,16 +22,19 @@ class Bee():
 
         if candidateSolution.fitness < self.solution.fitness:
             self.solution = candidateSolution
-            self.solution.improveAttemptCount = 0
+            self.solution.improvAttemptCount = 0
             return
 
-        self.solution.improveAttemptCount += 1
+        self.solution.improvAttemptCount += 1
 
 class Solution():
     def __init__(self, leftDomainBound, rightDomainBound, dimensionSize):
         self.position = [random.randint(leftDomainBound, rightDomainBound) for _ in range(dimensionSize)]
+        self.leftDomainBound = leftDomainBound
+        self.rightDomainBound = rightDomainBound
+        self.dimensionSize = dimensionSize
         self.fitness = 0
-        self.improveAttemptCount = 0
+        self.improvAttemptCount = 0
 
 def initializeSolutions(leftDomainBound, rightDomainBound, dimensionSize, solutionsLength):
     solutions = []
@@ -45,7 +48,20 @@ def initializeEmployeedBees(solutions):
 
     return employeedBees
 
+def employeedBeesExploration(employeedBees, solutions, fitnessEvaluator):
+    for beeIndex in range(len(employeedBees)):
+        employeedBees[beeIndex].explore(solutions, fitnessEvaluator)
 
+def onlookerBeesExploration(onlookerBees, solutions, fitnessEvaluator):
+    pass
+
+def scoutBeesExploration(bees, maxImprovTries):
+    for index in range(len(bees)):
+        currentPossibleScout = bees[index]
+        
+        if currentPossibleScout.solution.improvAttemptCount >= maxImprovTries:
+            newRandomSolution = Solution(currentPossibleScout.solution.leftDomainBound, currentPossibleScout.solution.rightDomainBound, currentPossibleScout.solution.dimensionSize)
+            currentPossibleScout.solution = newRandomSolution
 
 
 
