@@ -79,17 +79,19 @@ def scoutBeesExploration(bees, maxImprovTries):
             newRandomSolution = Solution(currentPossibleScout.solution.leftDomainBound, currentPossibleScout.solution.rightDomainBound, currentPossibleScout.solution.dimensionSize)
             currentPossibleScout.solution = newRandomSolution
 
-def run(colonySize, leftDomainBound, rightDomainBound, searchSpaceDimension, fitnessEvaluator, numberIterations, maxImprovTries):
+def ABC_algorithm(colonySize, leftDomainBound, rightDomainBound, searchSpaceDimension, fitnessEvaluator, numberIterations, maxImprovTries):
     solutions = initializeSolutions(leftDomainBound, rightDomainBound, searchSpaceDimension, colonySize)
     fitnessEvaluator.evaluateSolutions(solutions)
 
     employeedBees = initializeEmployeedBees(solutions)
     onlookerBees = initializeOnlookerBees(solutions)
 
+    result = {}
+
     for iteration in range(numberIterations):
         fitnessEvaluator.evaluateSolutions(solutions)
 
-        print(selectBestSolutionFromIteration(solutions).fitness)
+        result[iteration] = sum([solution.fitness for solution in solutions])
 
         employeedBeesExploration(employeedBees, solutions, fitnessEvaluator)
         onlookerBeesExploration(onlookerBees, solutions, fitnessEvaluator)
@@ -97,7 +99,7 @@ def run(colonySize, leftDomainBound, rightDomainBound, searchSpaceDimension, fit
         scoutBees = employeedBees + onlookerBees
         scoutBeesExploration(scoutBees, maxImprovTries)
 
-    return solutions
+    return result
 
 def selectBestSolutionFromIteration(solutions):
     bestSolution = None
@@ -118,7 +120,4 @@ def main():
 
     fitnessEvaluator = SphereEvaluator()
 
-    solutions = run(COLONY_SIZE, LEFT_BOUND, RIGHT_BOUND, SEARCH_SPACE_DIMENSIONS, fitnessEvaluator, NUMBER_ITERATIONS, MAX_IMPROV_TRIES)
-
-
-main()
+    result = ABC_algorithm(COLONY_SIZE, LEFT_BOUND, RIGHT_BOUND, SEARCH_SPACE_DIMENSIONS, fitnessEvaluator, NUMBER_ITERATIONS, MAX_IMPROV_TRIES)
