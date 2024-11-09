@@ -86,12 +86,14 @@ def ABC_algorithm(colonySize, leftDomainBound, rightDomainBound, searchSpaceDime
     employeedBees = initializeEmployeedBees(solutions)
     onlookerBees = initializeOnlookerBees(solutions)
 
-    result = {}
+    X = []
+    Y = []
 
     for iteration in range(numberIterations):
+        X.append(iteration + 1)
         fitnessEvaluator.evaluateSolutions(solutions)
 
-        result[iteration] = sum([solution.fitness for solution in solutions])
+        Y.append(sum([solution.fitness for solution in solutions]))
 
         employeedBeesExploration(employeedBees, solutions, fitnessEvaluator)
         onlookerBeesExploration(onlookerBees, solutions, fitnessEvaluator)
@@ -99,7 +101,7 @@ def ABC_algorithm(colonySize, leftDomainBound, rightDomainBound, searchSpaceDime
         scoutBees = employeedBees + onlookerBees
         scoutBeesExploration(scoutBees, maxImprovTries)
 
-    return result
+    return X, Y
 
 def selectBestSolutionFromIteration(solutions):
     bestSolution = None
@@ -120,4 +122,4 @@ def main():
 
     fitnessEvaluator = SphereEvaluator()
 
-    result = ABC_algorithm(COLONY_SIZE, LEFT_BOUND, RIGHT_BOUND, SEARCH_SPACE_DIMENSIONS, fitnessEvaluator, NUMBER_ITERATIONS, MAX_IMPROV_TRIES)
+    X, Y = ABC_algorithm(COLONY_SIZE, LEFT_BOUND, RIGHT_BOUND, SEARCH_SPACE_DIMENSIONS, fitnessEvaluator, NUMBER_ITERATIONS, MAX_IMPROV_TRIES)
