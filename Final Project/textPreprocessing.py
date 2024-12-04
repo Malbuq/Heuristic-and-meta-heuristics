@@ -27,8 +27,8 @@ def split_accented_char(char):
 
 
 def main():
-    input_file = "Final Project\Text\pt-br.txt"
-    output_file = "preprocessed-file"
+    input_file = "Final Project\Text\en-en.txt"
+    output_file = "EN-Preprocessed-file"
 
     with open(input_file, 'r', encoding='utf-8') as infile, open(output_file, 'w', encoding='utf-8') as outfile:
         for line in infile:
